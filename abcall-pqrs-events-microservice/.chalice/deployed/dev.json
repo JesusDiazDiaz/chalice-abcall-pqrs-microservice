@@ -1,0 +1,25 @@
+{
+  "resources": [
+    {
+      "name": "default-role",
+      "resource_type": "iam_role",
+      "role_arn": "arn:aws:iam::044162189377:role/abcall-pqrs-events-microservice-dev",
+      "role_name": "abcall-pqrs-events-microservice-dev"
+    },
+    {
+      "name": "handle_sns_message",
+      "resource_type": "lambda_function",
+      "lambda_arn": "arn:aws:lambda:us-east-1:044162189377:function:abcall-pqrs-events-microservice-dev-handle_sns_message"
+    },
+    {
+      "name": "handle_sns_message-sns-subscription",
+      "resource_type": "sns_event",
+      "topic": "AbcallPqrsTopic",
+      "lambda_arn": "arn:aws:lambda:us-east-1:044162189377:function:abcall-pqrs-events-microservice-dev-handle_sns_message",
+      "subscription_arn": "arn:aws:sns:us-east-1:044162189377:AbcallPqrsTopic:35d1a049-fb4e-4d4e-b5a2-4c876815c315",
+      "topic_arn": "arn:aws:sns:us-east-1:044162189377:AbcallPqrsTopic"
+    }
+  ],
+  "schema_version": "2.0",
+  "backend": "api"
+}
