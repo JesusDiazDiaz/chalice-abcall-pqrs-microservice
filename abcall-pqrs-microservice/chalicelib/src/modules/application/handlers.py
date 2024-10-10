@@ -2,7 +2,7 @@ import logging
 from chalicelib.src.modules.infrastructure.dispatchers import Dispatcher
 from chalicelib.src.seedwork.application.handlers import Handler
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 
 class CreateIncidentHandler(Handler):

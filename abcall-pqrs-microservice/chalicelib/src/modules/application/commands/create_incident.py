@@ -6,14 +6,15 @@ from chalicelib.src.modules.application.commands.base import CommandBaseHandler
 from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.seedwork.application.commands import Command
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 
 @dataclass
 class CreateIncidentCommand(Command):
-    incidence_type: str
-    status: str
-    risk_level: str
+    type: str
+    title: str
+    description: str
+    date: str
 
 
 class UpdateInformationHandler(CommandBaseHandler):
@@ -21,9 +22,10 @@ class UpdateInformationHandler(CommandBaseHandler):
         LOGGER.info("Handle createIncidentCommand")
 
         event = {
-            "status": command.status,
-            "risk_level": command.risk_level,
-            "incidence_type": command.incidence_type,
+            "type": command.type,
+            "title": command.title,
+            "description": command.description,
+            "date": command.date
         }
         dispatcher.send(signal='CreateIncidentIntegration', event=json.dumps(event))
 

@@ -6,7 +6,7 @@ sns = boto3.client('sns')
 
 SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:044162189377:AbcallPqrsTopic'
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 
 class Dispatcher:

@@ -4,7 +4,7 @@ from pydispatch import dispatcher
 
 from chalicelib.src.modules.application.handlers import CreateIncidentHandler
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 LOGGER.info("dispatcher connected")
 
