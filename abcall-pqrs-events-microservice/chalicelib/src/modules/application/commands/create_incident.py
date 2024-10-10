@@ -5,7 +5,7 @@ from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.seedwork.application.commands import Command
 from chalicelib.src.modules.domain.repository import IncidenceRepository
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 
 @dataclass

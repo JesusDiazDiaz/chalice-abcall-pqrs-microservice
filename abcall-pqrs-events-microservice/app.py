@@ -8,7 +8,7 @@ app = Chalice(app_name='abcall-pqrs-events-microservice')
 # Enable DEBUG logs.
 app.log.setLevel(logging.DEBUG)
 
-LOGGER = logging.getLogger()
+LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 @app.on_sns_message(topic='AbcallPqrsTopic')
 def handle_sns_message(event):
