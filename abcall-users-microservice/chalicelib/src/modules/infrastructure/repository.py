@@ -1,7 +1,7 @@
 from uuid import UUID
 import logging
-from chalicelib.src.modules.domain.repository import IncidenceRepository
-from chalicelib.src.modules.infrastructure.dto import Incidence
+from chalicelib.src.modules.domain.repository import UserRepository
+from chalicelib.src.modules.infrastructure.dto import User
 from chalicelib.src.config.db import db_session
 from chalicelib.src.modules.seedwork.infraestructure.utils import handle_db_session
 
@@ -9,7 +9,7 @@ from chalicelib.src.modules.seedwork.infraestructure.utils import handle_db_sess
 LOGGER = logging.getLogger('abcall-pqrs-microservice')
 
 
-class IncidenceRepositoryPostgres(IncidenceRepository):
+class UserRepositoryPostgres(UserRepository):
     def __init__(self):
         pass
 

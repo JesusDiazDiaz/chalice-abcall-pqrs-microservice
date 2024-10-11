@@ -1,11 +1,11 @@
 import boto3, logging, re
 from chalice import Chalice, BadRequestError
-"""from chalicelib.src.modules.application.commands.create_incident import CreateIncidentCommand
+from chalicelib.src.modules.application.commands.create_user import CreateUserCommand
 from chalicelib.src.modules.infrastructure.dto import Base
 from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.config.db import init_db, engine
 from chalicelib.src.seedwork.application.queries import execute_query
-from chalicelib.src.modules.application.queries.get_incidents import GetIncidentsQuery"""
+from chalicelib.src.modules.application.queries.get_users import GetUsersQuery
 
 
 app = Chalice(app_name='abcall-pqrs-microservice')
