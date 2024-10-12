@@ -37,11 +37,12 @@ class UserRepositoryPostgres(UserRepository):
             raise ValueError("user not found")
         return user
 
-    def remove(self, entity):
-        LOGGER.info(f"Repository remove user: {entity}")
+    def remove(self, user_sub):
+        LOGGER.info(f"Repository remove user: {user_sub}")
+        entity = db_session.query(User).filter_by(user_sub=user_sub).first()
         db_session.delete(entity)
         db_session.commit()
-        LOGGER.info(f"User {entity.id} removed successfully")
+        LOGGER.info(f"User {user_sub} removed successfully")
 
     def get_all(self, query:dict[str, str]):
         if not query:

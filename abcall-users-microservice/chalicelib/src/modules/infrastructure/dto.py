@@ -21,8 +21,7 @@ class UserRol(enum.Enum):
 class User(Base):
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    cognito_user_sub = Column(UUID(as_uuid=True), nullable=False)
+    cognito_user_sub = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
     document_type = Column(Enum(DocumentType), nullable=False)
     user_rol = Column(Enum(UserRol), nullable=False)
     client_id = Column(String, nullable=False)

@@ -1,12 +1,15 @@
 import boto3, logging, re
 from chalice import Chalice, BadRequestError
 from chalicelib.src.modules.application.commands.create_user import CreateUserCommand
+from chalicelib.src.modules.application.commands.update_user import UpdateUserCommand
+from chalicelib.src.modules.application.commands.delete_user import DeleteUserCommand
 from chalicelib.src.modules.infrastructure.dto import Base
 from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.config.db import init_db, engine
 from chalicelib.src.seedwork.application.queries import execute_query
 from chalicelib.src.modules.application.queries.get_users import GetUsersQuery
 from chalicelib.src.modules.application.queries.get_user import GetUserQuery
+
 
 
 app = Chalice(app_name='abcall-pqrs-microservice')
@@ -34,18 +37,48 @@ def index(client_id):
 @app.route('/user/{user_sub}', methods=['GET'])
 def user_get(user_sub):
     if not user_sub:
-        return {'status': 'fail', 'message': 'Invalid user subscription'}
+        return {'status': 'fail', 'message': 'Invalid user subscription'}, 400
 
     try:
         query_result = execute_query(GetUserQuery(user_sub=user_sub))
         if not query_result.result:  # Verificar si se encontró un resultado
             return {'status': 'fail', 'message': 'User not found'}
 
-        return {'status': 'success', 'data': query_result.result}
+        return {'status': 'success', 'data': query_result.result}, 200
 
     except Exception as e:
         LOGGER.error(f"Error fetching user: {str(e)}")
-        return {'status': 'fail', 'message': 'An error occurred while fetching the user'}
+        return {'status': 'fail', 'message': 'An error occurred while fetching the user'}, 500
+
+@app.route('/user/{user_sub}', methods=['DELETE'])
+def user_delete(user_sub):
+    if not user_sub:
+        return {'status': 'fail', 'message': 'Invalid user subscription'}, 400
+
+    command = DeleteUserCommand(cognito_user_sub=user_sub)
+
+    try:
+        execute_command(command)
+        return {'status': 'success'}, 200
+
+    except Exception as e:
+        LOGGER.error(f"Error fetching user: {str(e)}")
+        return {'status': 'fail', 'message': 'An error occurred while deleting the user'}, 400
+
+@app.route('/user/{user_sub}', methods=['UPDATE'])
+def user_update(user_sub):
+    if not user_sub:
+        return {'status': 'fail', 'message': 'Invalid user subscription'}, 400
+
+    command = UpdateUserCommand(cognito_user_sub=user_sub, user_data=app.current_request.json_body)
+
+    try:
+        execute_command(command)
+        return {'status': 'success'}, 200
+
+    except Exception as e:
+        LOGGER.error(f"Error fetching user: {str(e)}")
+        return {'status': 'fail', 'message': 'An error occurred while fetching the user'}, 400
 
 
 @app.route('/users', methods=['POST'])
@@ -99,7 +132,7 @@ def user_post():
 
     execute_command(command)
 
-    return {'status': "ok", 'message': "User created successfully", 'cognito_user_sub': cognito_user_sub}
+    return {'status': "ok", 'message': "User created successfully", 'cognito_user_sub': cognito_user_sub}, 200
 
 
 
