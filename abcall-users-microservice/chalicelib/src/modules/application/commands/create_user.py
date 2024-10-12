@@ -1,10 +1,9 @@
 import logging
-import json
 from dataclasses import dataclass
-from pydispatch import dispatcher
 from chalicelib.src.modules.application.commands.base import CommandBaseHandler
 from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.seedwork.application.commands import Command
+from chalicelib.src.modules.domain.repository import UserRepository
 
 LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
@@ -21,15 +20,10 @@ class CreateUserCommand(Command):
 
 class UpdateInformationHandler(CommandBaseHandler):
     def handle(self, command: CreateUserCommand):
-        LOGGER.info("Handle createIncidentCommand")
+        LOGGER.info("Handle createUserCommand")
 
-        event = {
-            "type": command.type,
-            "title": command.title,
-            "description": command.description,
-            "date": command.date
-        }
-        dispatcher.send(signal='CreateIncidentIntegration', event=json.dumps(event))
+        repository = self.incidence_factory.create_object(UserRepository.__class__)
+        repository.add(command)
 
 
 @execute_command.register(CreateUserCommand)
