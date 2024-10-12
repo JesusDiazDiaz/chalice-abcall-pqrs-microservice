@@ -7,7 +7,7 @@ from .repository import UserRepositoryPostgres
 
 
 @dataclass
-class IncidenceFactory(Factory):
+class UserFactory(Factory):
     def create_object(self, obj: type, mapper: any = None) -> Repository:
         if obj == UserRepository.__class__:
             return UserRepositoryPostgres()
