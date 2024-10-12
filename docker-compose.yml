@@ -12,6 +12,19 @@ services:
     networks:
       - chalice-network
 
+  abcall-user-db:
+    image: postgres:15.4
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: useruser
+      POSTGRES_PASSWORD: userpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - chalice-network
+
 #  abcall-pqrs-events-db:
 #    image: postgres:15.4
 #    environment:
