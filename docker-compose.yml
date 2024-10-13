@@ -75,6 +75,7 @@ services:
 volumes:
   pqrs-db-data:
   pqrs-events-db-data:
+  user-db-data:
 
 networks:
   chalice-network:
