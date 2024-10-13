@@ -1,21 +1,21 @@
 import boto3, logging, re
 from chalice import Chalice, BadRequestError
-from chalicelib.src.modules.application.commands.create_user import CreateUserCommand
-from chalicelib.src.modules.application.commands.update_user import UpdateUserCommand
-from chalicelib.src.modules.application.commands.delete_user import DeleteUserCommand
+from chalicelib.src.modules.application.commands.create_client import CreateClientCommand
+from chalicelib.src.modules.application.commands.update_client import UpdateClientCommand
+from chalicelib.src.modules.application.commands.delete_client import DeleteClientCommand
 from chalicelib.src.modules.infrastructure.dto import Base
 from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.config.db import init_db, engine
 from chalicelib.src.seedwork.application.queries import execute_query
-from chalicelib.src.modules.application.queries.get_users import GetUsersQuery
-from chalicelib.src.modules.application.queries.get_user import GetUserQuery
+from chalicelib.src.modules.application.queries.get_clients import GetClientsQuery
+from chalicelib.src.modules.application.queries.get_client import GetClientQuery
 
 
 
-app = Chalice(app_name='abcall-pqrs-microservice')
+app = Chalice(app_name='abcall-clients-microservice')
 app.debug = True
 
-LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
+LOGGER = logging.getLogger('abcall-clients-microservice')
 
 init_db()
 
@@ -52,7 +52,7 @@ def client_delete(client_id):
     if not client_id:
         return {'status': 'fail', 'message': 'Invalid client id'}, 400
 
-    command = DeleteUserCommand(client_id=client_id)
+    command = DeleteClientCommand(client_id=client_id)
 
     try:
         execute_command(command)
