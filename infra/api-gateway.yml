@@ -1,0 +1,212 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  MyApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: "SharedApiGateway"
+      Description: "API Gateway utilizado por múltiples microservicios de Chalice"
+      FailOnWarnings: true
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  MyApiGatewayResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt MyApiGatewayRestApi.RootResourceId
+      PathPart: "healthz"
+      RestApiId: !Ref MyApiGatewayRestApi
+
+  MyApiGatewayIncidentsResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt MyApiGatewayRestApi.RootResourceId
+      PathPart: "incidents"
+      RestApiId: !Ref MyApiGatewayRestApi
+
+  MyApiGatewayMeResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt MyApiGatewayRestApi.RootResourceId
+      PathPart: "me"
+      RestApiId: !Ref MyApiGatewayRestApi
+
+  MyApiGatewayMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref MyApiGatewayResource
+      RestApiId: !Ref MyApiGatewayRestApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: '{ "message": "Mock response successful", "statusCode": 200 }'
+            ResponseParameters:
+              method.response.header.Content-Type: "'application/json'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Content-Type: true
+
+  MyApiGatewayMeMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref MyApiGatewayMeResource
+      RestApiId: !Ref MyApiGatewayRestApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: '{
+                "perfil": "empresa",
+                "id_type": "NIT",
+                "legal_name": "Acme Corp",
+                "id_number": "9001234567",
+                "address": "123 Main Street, City, Country",
+                "type_document_rep": "CC",
+                "id_rep_lega": "987654321",
+                "name_rep": "Juan",
+                "last_name_rep": "Pérez",
+                "email_rep": "juan.perez@acmecorp.com",
+                "cellphone": "+573001234567",
+                "plan_type": "Premium"
+              }'
+            ResponseParameters:
+              method.response.header.Content-Type: "'application/json'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Content-Type: true
+
+  MyApiGatewayIncidentsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      ResourceId: !Ref MyApiGatewayIncidentsResource
+      RestApiId: !Ref MyApiGatewayRestApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: '[
+                {
+                  "client_id": "123456",
+                  "subject": "Incident 1",
+                  "description": "Issue with login functionality",
+                  "status": "open",
+                  "date": "2024-10-12",
+                  "estimated_close_date": "2024-10-15",
+                  "user_id": "654321",
+                  "type": "bug"
+                },
+                {
+                  "client_id": "789012",
+                  "subject": "Incident 2",
+                  "description": "Error processing payment",
+                  "status": "close",
+                  "date": "2024-10-10",
+                  "estimated_close_date": "2024-10-13",
+                  "user_id": "987654",
+                  "type": "issue"
+                }
+              ]'
+            ResponseParameters:
+              method.response.header.Content-Type: "'application/json'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Content-Type: true
+
+  MyApiGatewayIncidentsOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref MyApiGatewayIncidentsResource
+      RestApiId: !Ref MyApiGatewayRestApi
+      Integration:
+        Type: MOCK
+        RequestTemplates:
+          application/json: '{ "statusCode": 200 }'
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  MyApiGatewayIncidentsPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId: !Ref MyApiGatewayIncidentsResource
+      RestApiId: !Ref MyApiGatewayRestApi
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: MOCK
+        RequestTemplates:
+          application/json: |
+            {
+              "body": {
+                "subject": "$input.path('$.subject')",
+                "description": "$input.path('$.description')",
+                "type": "$input.path('$.type')"
+              },
+              "statusCode": 200
+            }
+        IntegrationResponses:
+          - StatusCode: 200
+            ResponseTemplates:
+              application/json: |
+                {
+                  "id": "PQR20241000123",
+                  "message": "Incident created successfully",
+                  "statusCode": 200
+                }
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Content-Type: "'application/json'"
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Content-Type: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  MyApiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: [MyApiGatewayMethod, MyApiGatewayMeMethod, MyApiGatewayIncidentsMethod]
+    Properties:
+      RestApiId: !Ref MyApiGatewayRestApi
+      StageName: prod
+
+Outputs:
+  ApiGatewayId:
+    Description: "El ID del API Gateway"
+    Value: !Ref MyApiGatewayRestApi
+  ApiGatewayUrl:
+    Description: "La URL del API Gateway"
+    Value: !Sub "https://${MyApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/"
