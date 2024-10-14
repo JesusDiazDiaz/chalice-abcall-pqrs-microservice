@@ -12,7 +12,7 @@ services:
     networks:
       - chalice-network
 
-  abcall-user-db:
+  abcall-users-db:
     image: postgres:15.4
     environment:
       POSTGRES_DB: userdb
@@ -21,7 +21,20 @@ services:
     ports:
       - "5435:5432"
     volumes:
-      - user-db-data:/var/lib/postgresql/data
+      - users-db-data:/var/lib/postgresql/data
+    networks:
+      - chalice-network
+
+  abcall-clients-db:
+    image: postgres:15.4
+    environment:
+      POSTGRES_DB: clientsdb
+      POSTGRES_USER: clientuser
+      POSTGRES_PASSWORD: clientpassword
+    ports:
+      - "5436:5432"
+    volumes:
+      - clients-db-data:/var/lib/postgresql/data
     networks:
       - chalice-network
 
@@ -72,10 +85,45 @@ services:
     depends_on:
       - abcall-pqrs-db
 
+  abcall-users-microservice:
+    build:
+      context: ./abcall-users-microservice
+    command: chalice local
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./abcall-users-microservice:/app
+      - ~/.aws:/root/.aws # Montar las credenciales de AWS en el contenedor
+    environment:
+      - DATABASE_URL=postgresql://usersuser:userpassword@abcall-pqrs-db:5435/userdb
+      - AWS_DEFAULT_REGION=us-east-1
+    networks:
+      - chalice-network
+    depends_on:
+      - abcall-users-db
+
+  abcall-clients-microservice:
+    build:
+      context: ./abcall-clients-microservice
+    command: chalice local
+    ports:
+      - "3003:3000"
+    volumes:
+      - ./abcall-user-microservice:/app
+      - ~/.aws:/root/.aws # Montar las credenciales de AWS en el contenedor
+    environment:
+      - DATABASE_URL=postgresql://clientsuser:clientpassword@abcall-pqrs-db:5435/clientsdb
+      - AWS_DEFAULT_REGION=us-east-1
+    networks:
+      - chalice-network
+    depends_on:
+      - abcall-clients-db
+
 volumes:
   pqrs-db-data:
   pqrs-events-db-data:
-  user-db-data:
+  users-db-data:
+  clients-db-data:
 
 networks:
   chalice-network:

@@ -16,6 +16,6 @@ class GetClientsHandler(QueryBaseHandler):
 
 
 @execute_query.register(GetClientsQuery)
-def execute_get_users(query: GetClientsQuery):
-    handler = GetUsersHandler()
+def execute_get_clients(query: GetClientsQuery):
+    handler = GetClientsHandler()
     return handler.handle(query)

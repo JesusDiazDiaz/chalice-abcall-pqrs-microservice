@@ -12,10 +12,10 @@ from chalicelib.src.modules.application.queries.get_user import GetUserQuery
 
 
 
-app = Chalice(app_name='abcall-pqrs-microservice')
+app = Chalice(app_name='abcall-users-microservice')
 app.debug = True
 
-LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
+LOGGER = logging.getLogger('abcall-users-microservice')
 
 init_db()
 
