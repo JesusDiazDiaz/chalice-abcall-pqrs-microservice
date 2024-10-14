@@ -65,7 +65,7 @@ def client_delete(client_id):
 @app.route('/client/{client_id}', methods=['UPDATE'])
 def client_update(client_id):
     if not client_id:
-        return {'status': 'fail', 'message': 'Invalid client subscription'}, 400
+        return {'status': 'fail', 'message': 'Invalid client id'}, 400
 
     command = UpdateClientCommand(client_id=client_id, client_data=app.current_request.json_body)
 
@@ -85,7 +85,7 @@ def client_post():
     LOGGER.info("Receive create client request")
     required_fields = [
         "perfil", "id_type", "legal_name", "id_number", "address", "type_document_rep", "id_rep_lega", "name_rep",
-        "last_name_rep", "email_rep", "plan_type"]
+        "last_name_rep", "email_rep", "plan_type", "communication_type"]
     for field in required_fields:
         if field not in client_as_json:
             raise BadRequestError(f"Missing required field: {field}")
@@ -101,6 +101,10 @@ def client_post():
     valid_types = ['emprendedor', 'empresario', 'empresario_plus']
     if client_as_json["client_type"] not in valid_types:
         raise BadRequestError(f"Invalid 'plan type' value. Must be one of {valid_types}")
+
+    valid_types = ['email', 'phone', 'sms', 'chat']
+    if client_as_json["communication_type"] not in valid_types:
+        raise BadRequestError(f"Invalid 'communication type' value. Must be one of {valid_types}")
 
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     if not re.match(email_regex, client_as_json["email_rep"]):

@@ -15,8 +15,8 @@ services:
   abcall-users-db:
     image: postgres:15.4
     environment:
-      POSTGRES_DB: userdb
-      POSTGRES_USER: useruser
+      POSTGRES_DB: usersdb
+      POSTGRES_USER: usersuser
       POSTGRES_PASSWORD: userpassword
     ports:
       - "5435:5432"
@@ -95,7 +95,7 @@ services:
       - ./abcall-users-microservice:/app
       - ~/.aws:/root/.aws # Montar las credenciales de AWS en el contenedor
     environment:
-      - DATABASE_URL=postgresql://usersuser:userpassword@abcall-pqrs-db:5435/userdb
+      - DATABASE_URL=postgresql://usersuser:userpassword@abcall-users-db:5435/usersdb
       - AWS_DEFAULT_REGION=us-east-1
     networks:
       - chalice-network
@@ -109,10 +109,10 @@ services:
     ports:
       - "3003:3000"
     volumes:
-      - ./abcall-user-microservice:/app
+      - ./abcall-clients-microservice:/app
       - ~/.aws:/root/.aws # Montar las credenciales de AWS en el contenedor
     environment:
-      - DATABASE_URL=postgresql://clientsuser:clientpassword@abcall-pqrs-db:5435/clientsdb
+      - DATABASE_URL=postgresql://clientsuser:clientpassword@abcall-clients-db:5436/clientsdb
       - AWS_DEFAULT_REGION=us-east-1
     networks:
       - chalice-network

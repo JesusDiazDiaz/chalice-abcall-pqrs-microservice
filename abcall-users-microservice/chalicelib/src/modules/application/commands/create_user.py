@@ -16,6 +16,7 @@ class CreateUserCommand(Command):
     id_number: str
     name: str
     last_name: str
+    communication_type: str
 
 
 class UpdateInformationHandler(CommandBaseHandler):

@@ -18,6 +18,12 @@ class UserRol(enum.Enum):
     agent = "agent"
     regular = "regular"
 
+class CommunicationType(enum.Enum):
+    email="email"
+    phone="phone"
+    sms="sms"
+    chat="chat"
+
 class User(Base):
     __tablename__ = 'users'
 
@@ -28,3 +34,4 @@ class User(Base):
     id_number = Column(String, nullable=False)
     name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
+    communication_type = Column(Enum(CommunicationType), nullable=False)
