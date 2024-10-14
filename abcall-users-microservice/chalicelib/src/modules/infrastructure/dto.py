@@ -1,7 +1,7 @@
 import enum
-
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Enum, Date, Text, UUID
+from sqlalchemy import Column, Integer, String, Enum, Date, Text
+from sqlalchemy.dialects.postgresql import UUID
 
 
 Base = declarative_base()
