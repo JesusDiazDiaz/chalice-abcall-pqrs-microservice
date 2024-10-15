@@ -25,7 +25,7 @@ USER_POOL_ID = 'us-east-1_YDIpg1HiU'
 CLIENT_ID = '65sbvtotc1hssqecgusj1p3f9g'
 
 
-@app.route('/clients/', methods=['GET'])
+@app.route('/clients', methods=['GET'])
 def index():
     query_result = execute_query(GetClientsQuery())
     return query_result.result
