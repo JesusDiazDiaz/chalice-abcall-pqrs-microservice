@@ -1,6 +1,8 @@
 import logging
 import json
 from dataclasses import dataclass
+
+from datetime import datetime
 from pydispatch import dispatcher
 from chalicelib.src.modules.application.commands.base import CommandBaseHandler
 from chalicelib.src.seedwork.application.commands import execute_command
@@ -14,7 +16,7 @@ class CreateIncidentCommand(Command):
     type: str
     title: str
     description: str
-    date: str
+    date: datetime
 
 
 class UpdateInformationHandler(CommandBaseHandler):
@@ -25,7 +27,7 @@ class UpdateInformationHandler(CommandBaseHandler):
             "type": command.type,
             "title": command.title,
             "description": command.description,
-            "date": command.date
+            "date": command.date.timestamp()
         }
         dispatcher.send(signal='CreateIncidentIntegration', event=json.dumps(event))
 
