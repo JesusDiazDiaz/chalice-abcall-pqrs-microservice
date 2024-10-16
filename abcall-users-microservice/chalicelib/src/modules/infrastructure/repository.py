@@ -3,7 +3,7 @@ from uuid import UUID
 import logging
 from chalicelib.src.modules.domain.repository import UserRepository
 from chalicelib.src.modules.infrastructure.dto import User, DocumentType, UserRol, CommunicationType
-from chalicelib.src.config.db import db_session
+from chalicelib.src.config.db import db_session, init_db
 from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
 
 
@@ -12,7 +12,7 @@ LOGGER = logging.getLogger('abcall-pqrs-microservice')
 
 class UserRepositoryPostgres(UserRepository):
     def __init__(self):
-        pass
+        self.db_session = init_db()
 
     def add(self, user):
         LOGGER.info(f"Repository add user: {user}")
@@ -27,27 +27,27 @@ class UserRepositoryPostgres(UserRepository):
             last_name=user.last_name,
             communication_type=CommunicationType[user.communication_type]
         )
-        db_session.add(new_user)
-        db_session.commit()
+        self.db_session.add(new_user)
+        self.db_session.commit()
         return new_user
 
     @handle_db_session(db_session)
     def get(self, user_sub):
-        user = db_session.query(User).filter_by(user_sub=user_sub).first()
+        user = self.db_session.query(User).filter_by(user_sub=user_sub).first()
         if not user:
             raise ValueError("user not found")
         return user
 
     def remove(self, user_sub):
         LOGGER.info(f"Repository remove user: {user_sub}")
-        entity = db_session.query(User).filter_by(user_sub=user_sub).first()
-        db_session.delete(entity)
-        db_session.commit()
+        entity = self.db_session.query(User).filter_by(user_sub=user_sub).first()
+        self.db_session.delete(entity)
+        self.db_session.commit()
         LOGGER.info(f"User {user_sub} removed successfully")
 
     def get_all(self, query:dict[str, str]):
         if not query:
-            return db_session.query(User).all()
+            return self.db_session.query(User).all()
 
         filters = []
         if 'client_id' in query:
@@ -61,13 +61,13 @@ class UserRepositoryPostgres(UserRepository):
         if 'id_number' in query:
             filters.append(User.id_number == query['id_number'])
 
-        return db_session.query(User).filter(and_(*filters)).all()
+        return self.db_session.query(User).filter(and_(*filters)).all()
 
 
     def update(self, user_sub, data) -> None:
         LOGGER.info(f"Repository update user sub: {user_sub} with data: {data}")
 
-        user = db_session.query(User).filter_by(cognito_user_sub=user_sub).first()
+        user = self.db_session.query(User).filter_by(cognito_user_sub=user_sub).first()
         if not user:
             raise ValueError("User not found")
 
@@ -88,5 +88,5 @@ class UserRepositoryPostgres(UserRepository):
         if 'communication_type' in data:
             user.communication_type = CommunicationType[data['communication_type']]
 
-        db_session.commit()
+        self.db_session.commit()
         LOGGER.info(f"User {user_sub} updated successfully")
