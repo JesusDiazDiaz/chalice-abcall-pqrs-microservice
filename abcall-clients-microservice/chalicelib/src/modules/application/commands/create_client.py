@@ -26,7 +26,7 @@ class CreateClientCommand(Command):
 
 class UpdateInformationHandler(CommandBaseHandler):
     def handle(self, command: CreateClientCommand):
-        LOGGER.info("Handle createUserCommand")
+        LOGGER.info("Handle createClientCommand")
 
         repository = self.incidence_factory.create_object(ClientRepository.__class__)
         repository.add(command)

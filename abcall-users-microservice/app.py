@@ -12,10 +12,10 @@ from chalicelib.src.modules.application.queries.get_user import GetUserQuery
 
 
 
-app = Chalice(app_name='abcall-pqrs-microservice')
+app = Chalice(app_name='abcall-users-microservice')
 app.debug = True
 
-LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
+LOGGER = logging.getLogger('abcall-users-microservice')
 
 init_db()
 
@@ -86,7 +86,8 @@ def user_post():
     user_as_json = app.current_request.json_body
 
     LOGGER.info("Receive create user request")
-    required_fields = ["client_id", "document_type", "user_rol", "id_number", "name", "last_name", "email", "cellphone", "password"]
+    required_fields = ["client_id", "document_type", "user_rol", "id_number", "name", "last_name", "email", "cellphone",
+                       "password", "communication_type"]
     for field in required_fields:
         if field not in user_as_json:
             raise BadRequestError(f"Missing required field: {field}")
@@ -99,6 +100,9 @@ def user_post():
     if user_as_json["user_type"] not in valid_types:
         raise BadRequestError(f"Invalid 'type' value. Must be one of {valid_types}")
 
+    valid_types = ['email', 'phone', 'sms', 'chat']
+    if user_as_json["communication_type"] not in valid_types:
+        raise BadRequestError(f"Invalid 'communication type' value. Must be one of {valid_types}")
 
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     if not re.match(email_regex, user_as_json["email"]):

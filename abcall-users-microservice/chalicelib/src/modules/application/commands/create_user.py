@@ -5,7 +5,7 @@ from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.seedwork.application.commands import Command
 from chalicelib.src.modules.domain.repository import UserRepository
 
-LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
+LOGGER = logging.getLogger('abcall-users-microservice')
 
 
 @dataclass
@@ -16,6 +16,7 @@ class CreateUserCommand(Command):
     id_number: str
     name: str
     last_name: str
+    communication_type: str
 
 
 class UpdateInformationHandler(CommandBaseHandler):

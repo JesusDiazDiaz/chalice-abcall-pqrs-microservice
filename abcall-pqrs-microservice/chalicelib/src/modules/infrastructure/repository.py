@@ -4,7 +4,6 @@ from chalicelib.src.modules.domain.repository import IncidenceRepository
 from chalicelib.src.modules.infrastructure.dto import Incidence
 from chalicelib.src.config.db import db_session, init_db
 from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
-
 LOGGER = logging.getLogger('abcall-pqrs-microservice')
 
 

@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -8,7 +9,8 @@ def init_db():
     global db_session
     global engine
 
-    engine = create_engine("postgresql://username:password@hostname:port/dbname")
+    database_url = os.getenv('DATABASE_URL')
+    engine = create_engine(database_url)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
     db_session = scoped_session(SessionLocal)

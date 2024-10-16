@@ -8,13 +8,13 @@ from chalicelib.src.modules.domain.repository import ClientRepository
 class GetClientQuery(Query):
     client_id:str
 
-class GetUserHandler(QueryBaseHandler):
+class GetClientHandler(QueryBaseHandler):
     def handle(self, query: GetClientQuery):
-        repository = self.user_factory.create_object(ClientRepository.__class__)
+        repository = self.client_factory.create_object(ClientRepository.__class__)
         result = repository.get(query.client_id)
         return QueryResult(result=result)
 
 @execute_query.register(GetClientQuery)
-def execute_get_user(query: GetClientQuery):
-    handler = GetUserHandler()
+def execute_get_client(query: GetClientQuery):
+    handler = GetClientHandler()
     return handler.handle(query)

@@ -25,7 +25,7 @@ USER_POOL_ID = 'us-east-1_YDIpg1HiU'
 CLIENT_ID = '65sbvtotc1hssqecgusj1p3f9g'
 
 
-@app.route('/clients/', methods=['GET'])
+@app.route('/clients', methods=['GET'])
 def index():
     query_result = execute_query(GetClientsQuery())
     return query_result.result
@@ -47,7 +47,7 @@ def client_get(client_id):
         LOGGER.error(f"Error fetching client: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while fetching the client'}, 500
 
-@app.route('/user/{user_sub}', methods=['DELETE'])
+@app.route('/client/{client_id}', methods=['DELETE'])
 def client_delete(client_id):
     if not client_id:
         return {'status': 'fail', 'message': 'Invalid client id'}, 400
@@ -63,11 +63,11 @@ def client_delete(client_id):
         return {'status': 'fail', 'message': 'An error occurred while deleting the client'}, 400
 
 @app.route('/client/{client_id}', methods=['UPDATE'])
-def user_update(client_id):
+def client_update(client_id):
     if not client_id:
-        return {'status': 'fail', 'message': 'Invalid user subscription'}, 400
+        return {'status': 'fail', 'message': 'Invalid client id'}, 400
 
-    command = UpdateClientCommand(client_id=client_id, user_data=app.current_request.json_body)
+    command = UpdateClientCommand(client_id=client_id, client_data=app.current_request.json_body)
 
     try:
         execute_command(command)
@@ -82,7 +82,7 @@ def user_update(client_id):
 def client_post():
     client_as_json = app.current_request.json_body
 
-    LOGGER.info("Receive create user request")
+    LOGGER.info("Receive create client request")
     required_fields = [
         "perfil", "id_type", "legal_name", "id_number", "address", "type_document_rep", "id_rep_lega", "name_rep",
         "last_name_rep", "email_rep", "plan_type"]
@@ -99,7 +99,7 @@ def client_post():
         raise BadRequestError(f"Invalid 'document type for legal representative' value. Must be one of {valid_types}")
 
     valid_types = ['emprendedor', 'empresario', 'empresario_plus']
-    if client_as_json["user_type"] not in valid_types:
+    if client_as_json["client_type"] not in valid_types:
         raise BadRequestError(f"Invalid 'plan type' value. Must be one of {valid_types}")
 
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'

@@ -4,13 +4,13 @@ import logging
 from chalicelib.src.modules.domain.repository import ClientRepository
 from chalicelib.src.modules.infrastructure.dto import Client, DocumentType, PlanType
 from chalicelib.src.config.db import db_session
-from chalicelib.src.modules.seedwork.infraestructure.utils import handle_db_session
+from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
 
 
 LOGGER = logging.getLogger('abcall-client-microservice')
 
 
-class UserRepositoryPostgres(ClientRepository):
+class ClientRepositoryPostgres(ClientRepository):
     def __init__(self):
         pass
 

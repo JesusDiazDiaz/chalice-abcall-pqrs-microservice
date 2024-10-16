@@ -2,9 +2,9 @@ from operator import and_
 from uuid import UUID
 import logging
 from chalicelib.src.modules.domain.repository import UserRepository
-from chalicelib.src.modules.infrastructure.dto import User, DocumentType, UserRol
+from chalicelib.src.modules.infrastructure.dto import User, DocumentType, UserRol, CommunicationType
 from chalicelib.src.config.db import db_session
-from chalicelib.src.modules.seedwork.infraestructure.utils import handle_db_session
+from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
 
 
 LOGGER = logging.getLogger('abcall-pqrs-microservice')
@@ -24,7 +24,8 @@ class UserRepositoryPostgres(UserRepository):
             client_id=user.client_id,
             id_number=user.id_number,
             name=user.name,
-            last_name=user.last_name
+            last_name=user.last_name,
+            communication_type=CommunicationType[user.communication_type]
         )
         db_session.add(new_user)
         db_session.commit()
@@ -84,6 +85,8 @@ class UserRepositoryPostgres(UserRepository):
             user.document_type = DocumentType[data['document_type']]
         if 'user_rol' in data:
             user.user_rol = UserRol[data['user_rol']]
+        if 'communication_type' in data:
+            user.communication_type = CommunicationType[data['communication_type']]
 
         db_session.commit()
         LOGGER.info(f"User {user_sub} updated successfully")
