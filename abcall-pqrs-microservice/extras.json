@@ -1,0 +1,66 @@
+{
+  "Resources": {
+    "AuroraServerlessCluster": {
+      "Type": "AWS::RDS::DBCluster",
+      "Properties": {
+        "Engine": "aurora-postgresql",
+        "EngineMode": "serverless",
+        "MasterUsername": "bunny",
+        "MasterUserPassword": "password123",
+        "DBClusterIdentifier": "pqrs-service-serverless",
+        "DatabaseName": "postgres",
+        "ScalingConfiguration": {
+          "AutoPause": true,
+          "MinCapacity": 2,
+          "MaxCapacity": 16,
+          "SecondsUntilAutoPause": 300
+        },
+        "StorageEncrypted": true,
+        "VpcSecurityGroupIds": [
+          {
+            "Ref": "SecurityGroup"
+          }
+        ],
+        "DBSubnetGroupName": {
+          "Ref": "DBSubnetGroup"
+        }
+      }
+    },
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Aurora Serverless security group",
+        "VpcId": "vpc-a29a48d8",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 5432,
+            "ToPort": 5432,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "DBSubnetGroup": {
+      "Type": "AWS::RDS::DBSubnetGroup",
+      "Properties": {
+        "DBSubnetGroupDescription": "Subnet group for Aurora Serverless",
+        "SubnetIds": [
+          "subnet-2cf5734b",
+          "subnet-f312d8cd"
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "DBClusterEndpoint": {
+      "Value": {
+        "Fn::GetAtt": [
+          "AuroraServerlessCluster",
+          "Endpoint.Address"
+        ]
+      },
+      "Description": "Endpoint for the Aurora Serverless Cluster"
+    }
+  }
+}

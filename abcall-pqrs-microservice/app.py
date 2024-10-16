@@ -1,4 +1,7 @@
+import json
 import logging
+from datetime import datetime
+
 from chalice import Chalice, BadRequestError
 from chalicelib.src.modules.application.commands.create_incident import CreateIncidentCommand
 from chalicelib.src.modules.infrastructure.dto import Base
@@ -7,27 +10,30 @@ from chalicelib.src.config.db import init_db, engine
 from chalicelib.src.seedwork.application.queries import execute_query
 from chalicelib.src.modules.application.queries.get_incidents import GetIncidentsQuery
 
-
 app = Chalice(app_name='abcall-pqrs-microservice')
 app.debug = True
 
 LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
-init_db()
+
+@app.on_cw_event("startup")
+def startup():
+    init_db()
 
 
-@app.route('/pqrs')
+@app.route('/pqrs', cors=True)
 def index():
     query_result = execute_query(GetIncidentsQuery())
-    return query_result.result
+    return [{'title': item.title, 'id': item.id, 'type': item.type.value, 'date': item.date.strftime("%d-%m-%Y %H:%M"),
+             'description': item.description} for item in query_result.result]
 
 
-@app.route('/pqrs', methods=['POST'])
+@app.route('/pqrs', methods=['POST'], cors=True)
 def incidence_post():
     incidence_as_json = app.current_request.json_body
 
     LOGGER.info("Receive create incident request")
-    required_fields = ["title", "type", "description", "date"]
+    required_fields = ["title", "type", "description"]
     for field in required_fields:
         if field not in incidence_as_json:
             raise BadRequestError(f"Missing required field: {field}")
@@ -40,7 +46,7 @@ def incidence_post():
         title=incidence_as_json["title"],
         type=incidence_as_json["type"],
         description=incidence_as_json["description"],
-        date=incidence_as_json["date"]
+        date=datetime.now()
     )
 
     execute_command(command)
@@ -48,11 +54,10 @@ def incidence_post():
     return {'status': "ok"}
 
 
-
 @app.route('/migrate', methods=['POST'])
 def migrate():
     try:
-        Base.metadata.create_all(bind=engine)
+        init_db(migrate=True)
         return {"message": "Tablas creadas con éxito"}
     except Exception as e:
         return {"error": str(e)}
