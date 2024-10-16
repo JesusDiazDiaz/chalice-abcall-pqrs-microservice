@@ -1,5 +1,5 @@
 import enum
-
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Enum, Date, Text
 
@@ -36,3 +36,8 @@ class Client(Base):
     email_rep = Column(String, nullable=False)
     plan_type = Column(Enum(PlanType), nullable=False)
     cellphone = Column(String, nullable=True, default="")
+
+class ClientSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Client
+        load_instance = True
