@@ -2,7 +2,7 @@ import json
 import logging
 from datetime import datetime
 
-from chalice import Chalice, BadRequestError
+from chalice import Chalice, BadRequestError, CognitoUserPoolAuthorizer
 from chalicelib.src.modules.application.commands.create_incident import CreateIncidentCommand
 from chalicelib.src.modules.infrastructure.dto import Base
 from chalicelib.src.seedwork.application.commands import execute_command
@@ -16,19 +16,20 @@ app.debug = True
 LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 
-@app.on_cw_event("startup")
-def startup():
-    init_db()
+authorizer = CognitoUserPoolAuthorizer(
+    'AbcPool',
+    provider_arns=['arn:aws:cognito-idp:us-east-1:044162189377:userpool/us-east-1_YDIpg1HiU']
+)
 
 
-@app.route('/pqrs', cors=True)
+@app.route('/pqrs', cors=True, authorizer=authorizer)
 def index():
+    LOGGER.info(f"context ${app.current_request.context}")
     query_result = execute_query(GetIncidentsQuery())
-    return [{'title': item.title, 'id': item.id, 'type': item.type.value, 'date': item.date.strftime("%d-%m-%Y %H:%M"),
-             'description': item.description} for item in query_result.result]
+    return query_result.result
 
 
-@app.route('/pqrs', methods=['POST'], cors=True)
+@app.route('/pqrs', methods=['POST'], cors=True, authorizer=authorizer)
 def incidence_post():
     incidence_as_json = app.current_request.json_body
 

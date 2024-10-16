@@ -8,6 +8,8 @@ cryptography==43.0.1
 iniconfig==2.0.0
 inquirer==2.10.1
 jmespath==1.0.1
+marshmallow==3.22.0
+marshmallow-sqlalchemy==1.1.0
 packaging==24.1
 pluggy==1.5.0
 psycopg==3.2.3

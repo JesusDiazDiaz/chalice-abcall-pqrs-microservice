@@ -110,21 +110,23 @@ Resources:
                   "client_id": "123456",
                   "subject": "Incident 1",
                   "description": "Issue with login functionality",
-                  "status": "open",
+                  "status": "Abierto",
                   "date": "2024-10-12",
                   "estimated_close_date": "2024-10-15",
                   "user_id": "654321",
-                  "type": "bug"
+                  "type": "Peticion",
+                  "type_communication": "Email"
                 },
                 {
                   "client_id": "789012",
                   "subject": "Incident 2",
                   "description": "Error processing payment",
-                  "status": "close",
+                  "status": "Cerrado",
                   "date": "2024-10-10",
                   "estimated_close_date": "2024-10-13",
                   "user_id": "987654",
-                  "type": "issue"
+                  "type": "Queja",
+                  "type_communication": "Telefono"
                 }
               ]'
             ResponseParameters:

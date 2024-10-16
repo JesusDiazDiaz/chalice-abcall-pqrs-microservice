@@ -1,7 +1,7 @@
 from uuid import UUID
 import logging
 from chalicelib.src.modules.domain.repository import IncidenceRepository
-from chalicelib.src.modules.infrastructure.dto import Incidence
+from chalicelib.src.modules.infrastructure.dto import Incidence, IncidenceSchema
 from chalicelib.src.config.db import db_session, init_db
 from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
 LOGGER = logging.getLogger('abcall-pqrs-microservice')
@@ -25,7 +25,10 @@ class IncidenceRepositoryPostgres(IncidenceRepository):
         raise NotImplementedError
 
     def get_all(self):
-        return self.db_session.query(Incidence).all()
+        incident_schema = IncidenceSchema(many=True)
+
+        result = self.db_session.query(Incidence).all()
+        return incident_schema.dump(result)
 
     def update(self, id, data) -> None:
         raise NotImplementedError
