@@ -1,4 +1,5 @@
 import enum
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, Enum, Date, Text
 from sqlalchemy.dialects.postgresql import UUID
@@ -35,3 +36,8 @@ class User(Base):
     name = Column(String, nullable=False)
     last_name = Column(String, nullable=False)
     communication_type = Column(Enum(CommunicationType), nullable=False)
+
+class UserSchema(SQLAlchemyAutoSchema):
+    class Meta:
+        model = User
+        load_instance = True

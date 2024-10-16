@@ -2,7 +2,7 @@ from operator import and_
 from uuid import UUID
 import logging
 from chalicelib.src.modules.domain.repository import UserRepository
-from chalicelib.src.modules.infrastructure.dto import User, DocumentType, UserRol, CommunicationType
+from chalicelib.src.modules.infrastructure.dto import User, DocumentType, UserRol, CommunicationType, UserSchema
 from chalicelib.src.config.db import db_session, init_db
 from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
 
@@ -16,7 +16,7 @@ class UserRepositoryPostgres(UserRepository):
 
     def add(self, user):
         LOGGER.info(f"Repository add user: {user}")
-
+        user_schema = UserSchema()
         new_user = User(
             cognito_user_sub=user.cognito_user_sub,
             document_type=DocumentType[user.document_type],
@@ -29,14 +29,15 @@ class UserRepositoryPostgres(UserRepository):
         )
         self.db_session.add(new_user)
         self.db_session.commit()
-        return new_user
+        return user_schema.dump(new_user)
 
     @handle_db_session(db_session)
     def get(self, user_sub):
+        user_schema = UserSchema()
         user = self.db_session.query(User).filter_by(user_sub=user_sub).first()
         if not user:
             raise ValueError("user not found")
-        return user
+        return user_schema.dump(user)
 
     def remove(self, user_sub):
         LOGGER.info(f"Repository remove user: {user_sub}")
@@ -46,6 +47,7 @@ class UserRepositoryPostgres(UserRepository):
         LOGGER.info(f"User {user_sub} removed successfully")
 
     def get_all(self, query:dict[str, str]):
+        user_schema = UserSchema(many=True)
         if not query:
             return self.db_session.query(User).all()
 
@@ -61,7 +63,8 @@ class UserRepositoryPostgres(UserRepository):
         if 'id_number' in query:
             filters.append(User.id_number == query['id_number'])
 
-        return self.db_session.query(User).filter(and_(*filters)).all()
+        result = self.db_session.query(User).filter(and_(*filters)).all()
+        return user_schema.dump(result)
 
 
     def update(self, user_sub, data) -> None:
