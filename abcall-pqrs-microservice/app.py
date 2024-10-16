@@ -24,7 +24,6 @@ authorizer = CognitoUserPoolAuthorizer(
 
 @app.route('/pqrs', cors=True, authorizer=authorizer)
 def index():
-    LOGGER.info(f"context ${app.current_request.context}")
     query_result = execute_query(GetIncidentsQuery())
     return query_result.result
 

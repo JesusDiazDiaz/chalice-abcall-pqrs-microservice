@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: pqrsuser
       POSTGRES_PASSWORD: pqrspassword
     ports:
-      - "5432:5432"
+      - "5437:5432"
     volumes:
       - pqrs-db-data:/var/lib/postgresql/data
     networks:
