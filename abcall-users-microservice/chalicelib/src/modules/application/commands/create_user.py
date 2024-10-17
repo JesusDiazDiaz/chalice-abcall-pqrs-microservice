@@ -12,6 +12,7 @@ LOGGER = logging.getLogger('abcall-users-microservice')
 class CreateUserCommand(Command):
     cognito_user_sub: str
     document_type: str
+    user_role: str
     client_id: str
     id_number: str
     name: str
