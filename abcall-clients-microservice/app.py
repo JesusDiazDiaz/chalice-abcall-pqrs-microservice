@@ -128,7 +128,7 @@ def client_post():
 @app.route('/migrate', methods=['POST'])
 def migrate():
     try:
-        Base.metadata.create_all(bind=engine)
+        init_db(migrate=True)
         return {"message": "Tablas creadas con éxito"}
     except Exception as e:
         return {"error": str(e)}

@@ -20,7 +20,7 @@ class UserRepositoryPostgres(UserRepository):
         new_user = User(
             cognito_user_sub=user.cognito_user_sub,
             document_type=DocumentType[user.document_type],
-            user_rol=UserRol[user.user_rol],
+            user_rol=UserRol[user.user_role],
             client_id=user.client_id,
             id_number=user.id_number,
             name=user.name,
@@ -87,7 +87,7 @@ class UserRepositoryPostgres(UserRepository):
         if 'document_type' in data:
             user.document_type = DocumentType[data['document_type']]
         if 'user_rol' in data:
-            user.user_rol = UserRol[data['user_rol']]
+            user.user_role = UserRol[data['user_rol']]
         if 'communication_type' in data:
             user.communication_type = CommunicationType[data['communication_type']]
 
