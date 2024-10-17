@@ -31,7 +31,6 @@ class UserRepositoryPostgres(UserRepository):
         self.db_session.commit()
         return user_schema.dump(new_user)
 
-    @handle_db_session(db_session)
     def get(self, user_sub):
         user_schema = UserSchema()
         user = self.db_session.query(User).filter_by(user_sub=user_sub).first()

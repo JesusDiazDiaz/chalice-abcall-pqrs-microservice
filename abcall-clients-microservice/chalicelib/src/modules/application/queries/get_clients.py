@@ -11,7 +11,7 @@ class GetClientsQuery(Query):
 class GetClientsHandler(QueryBaseHandler):
     def handle(self, query: GetClientsQuery):
         repository = self.client_factory.create_object(ClientRepository.__class__)
-        result = repository.get_all()
+        result = repository.get_all(None)
         return QueryResult(result=result)
 
 

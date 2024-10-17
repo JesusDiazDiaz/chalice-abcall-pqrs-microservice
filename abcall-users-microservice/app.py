@@ -65,7 +65,7 @@ def user_delete(user_sub):
         LOGGER.error(f"Error fetching user: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while deleting the user'}, 400
 
-@app.route('/user/{user_sub}', methods=['UPDATE'])
+@app.route('/user/{user_sub}', methods=['PUT'])
 def user_update(user_sub):
     if not user_sub:
         return {'status': 'fail', 'message': 'Invalid user subscription'}, 400
