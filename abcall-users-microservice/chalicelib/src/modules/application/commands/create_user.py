@@ -12,6 +12,7 @@ LOGGER = logging.getLogger('abcall-users-microservice')
 class CreateUserCommand(Command):
     cognito_user_sub: str
     document_type: str
+    user_role: str
     client_id: str
     id_number: str
     name: str
@@ -23,7 +24,7 @@ class UpdateInformationHandler(CommandBaseHandler):
     def handle(self, command: CreateUserCommand):
         LOGGER.info("Handle createUserCommand")
 
-        repository = self.incidence_factory.create_object(UserRepository.__class__)
+        repository = self.user_factory.create_object(UserRepository.__class__)
         repository.add(command)
 
 

@@ -2,7 +2,7 @@ from operator import and_
 from uuid import UUID
 import logging
 from chalicelib.src.modules.domain.repository import ClientRepository
-from chalicelib.src.modules.infrastructure.dto import Client, DocumentType, PlanType
+from chalicelib.src.modules.infrastructure.dto import Client, DocumentType, PlanType, ClientSchema
 from chalicelib.src.config.db import db_session, init_db
 from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
 
@@ -16,7 +16,7 @@ class ClientRepositoryPostgres(ClientRepository):
 
     def add(self, client):
         LOGGER.info(f"Repository add client: {client}")
-
+        client_schema = ClientSchema()
         new_client = Client(
             perfil=client.perfil,
             id_type=DocumentType[client.id_type],
@@ -33,14 +33,14 @@ class ClientRepositoryPostgres(ClientRepository):
         )
         self.db_session.add(new_client)
         self.db_session.commit()
-        return new_client
+        return client_schema.dump(new_client)
 
-    @handle_db_session(db_session)
     def get(self, client_id):
+        client_schema = ClientSchema()
         client = self.db_session.query(Client).filter_by(id=client_id).first()
         if not client:
             raise ValueError("Client not found")
-        return client
+        return client_schema.dump(client)
 
     def remove(self, client_id):
         LOGGER.info(f"Repository remove client: {client_id}")
@@ -52,8 +52,10 @@ class ClientRepositoryPostgres(ClientRepository):
         LOGGER.info(f"Client {client_id} removed successfully")
 
     def get_all(self, query: dict[str, str]):
+        client_schema = ClientSchema(many=True)
         if not query:
-            return self.db_session.query(Client).all()
+            result = self.db_session.query(Client).all()
+            return client_schema.dump(result)
 
         filters = []
         if 'id_type' in query:
@@ -69,7 +71,8 @@ class ClientRepositoryPostgres(ClientRepository):
         if 'email_rep' in query:
             filters.append(Client.email_rep.ilike(f"%{query['email_rep']}%"))
 
-        return self.db_session.query(Client).filter(and_(*filters)).all()
+        result = self.db_session.query(Client).filter(and_(*filters)).all()
+        return client_schema.dump(result)
 
     def update(self, client_id, data) -> None:
         LOGGER.info(f"Repository update client ID: {client_id} with data: {data}")

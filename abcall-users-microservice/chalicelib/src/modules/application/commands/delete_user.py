@@ -17,7 +17,7 @@ class UpdateInformationHandler(CommandBaseHandler):
     def handle(self, command: DeleteUserCommand):
         LOGGER.info("Handle createUserCommand")
 
-        repository = self.incidence_factory.create_object(UserRepository.__class__)
+        repository = self.user_factory.create_object(UserRepository.__class__)
         repository.remove(command.cognito_user_sub)
 
 

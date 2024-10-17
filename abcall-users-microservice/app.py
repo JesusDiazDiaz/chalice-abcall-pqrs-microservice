@@ -66,8 +66,8 @@ def user_delete(user_sub):
         LOGGER.error(f"Error fetching user: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while deleting the user'}, 400
 
-
-@app.route('/user/{user_sub}', methods=['UPDATE'], authorizer=authorizer)
+      
+@app.route('/user/{user_sub}', methods=['PUT'], authorizer=authorizer)
 def user_update(user_sub):
     if not user_sub:
         return {'status': 'fail', 'message': 'Invalid user subscription'}, 400
@@ -88,7 +88,7 @@ def user_post():
     user_as_json = app.current_request.json_body
 
     LOGGER.info("Receive create user request")
-    required_fields = ["client_id", "document_type", "user_rol", "id_number", "name", "last_name", "email", "cellphone",
+    required_fields = ["client_id", "document_type", "user_role", "id_number", "name", "last_name", "email", "cellphone",
                        "password", "communication_type"]
     for field in required_fields:
         if field not in user_as_json:
@@ -99,7 +99,7 @@ def user_post():
         raise BadRequestError(f"Invalid 'type' value. Must be one of {valid_types}")
 
     valid_types = ['superadmin', 'admin', 'agent', 'regular']
-    if user_as_json["user_type"] not in valid_types:
+    if user_as_json["user_role"] not in valid_types:
         raise BadRequestError(f"Invalid 'type' value. Must be one of {valid_types}")
 
     valid_types = ['email', 'phone', 'sms', 'chat']
@@ -150,11 +150,55 @@ def user_post():
         id_number=user_as_json["id_number"],
         name=user_as_json["name"],
         last_name=user_as_json["last_name"],
+        communication_type=user_as_json["communication_type"],
+        user_role=user_as_json["user_role"]
     )
 
     execute_command(command)
 
     return {'status': "ok", 'message': "User created successfully", 'cognito_user_sub': cognito_user_sub}, 200
+
+@app.route('/user/me', methods=['GET'], authorizer=app.authorizer())
+def get_current_user():
+    request = app.current_request
+    auth_header = request.headers.get('Authorization')
+
+
+    if not auth_header:
+        raise BadRequestError("Missing Authorization header")
+
+    token = auth_header.split()[1]
+
+    try:
+        user_info = cognito_client.get_user(AccessToken=token)
+
+        user_sub = user_info['Username']
+
+        cognito_data = {
+            'username': user_info['Username'],
+            'email': next(attr['Value'] for attr in user_info['UserAttributes'] if attr['Name'] == 'email'),
+            'user_rol': next(attr['Value'] for attr in user_info['UserAttributes'] if attr['Name'] == 'custom:userRol'),
+        }
+
+        query_result = execute_query(GetUserQuery(user_sub=user_sub))
+
+        if not query_result.result:  # Verificamos si se encontró un resultado en la base de datos
+            return {'status': 'fail', 'message': 'User not found in database'}, 404
+
+        user_data = {
+            **cognito_data,
+            **query_result.result
+        }
+
+        return {'status': 'success', 'data': user_data}, 200
+
+    except cognito_client.exceptions.NotAuthorizedException:
+        return {'status': 'fail', 'message': 'Invalid token or not authorized'}, 401
+
+    except Exception as e:
+        LOGGER.error(f"Error fetching current user: {str(e)}")
+        return {'status': 'fail', 'message': 'An error occurred while fetching the current user'}, 500
+
 
 
 @app.route('/migrate', methods=['POST'])
