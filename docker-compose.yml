@@ -54,7 +54,7 @@ services:
   abcall-pqrs-microservice:
     build:
       context: ./abcall-pqrs-microservice
-    command: chalice local
+    command: chalice local --host=0.0.0.0 --port=3000
     ports:
       - "3000:3000"
     volumes:
@@ -71,7 +71,7 @@ services:
   abcall-pqrs-events-microservice:
     build:
       context: ./abcall-pqrs-events-microservice
-    command: chalice local
+    command: chalice local --host=0.0.0.0 --port=3000
     ports:
       - "3001:3000"
     volumes:
@@ -88,7 +88,7 @@ services:
   abcall-users-microservice:
     build:
       context: ./abcall-users-microservice
-    command: chalice local
+    command: chalice local --host=0.0.0.0 --port=3000
     ports:
       - "3002:3000"
     volumes:
@@ -105,7 +105,7 @@ services:
   abcall-clients-microservice:
     build:
       context: ./abcall-clients-microservice
-    command: chalice local
+    command: chalice local --host=0.0.0.0 --port=3000
     ports:
       - "3003:3000"
     volumes:
