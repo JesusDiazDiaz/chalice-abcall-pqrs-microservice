@@ -35,7 +35,6 @@ class ClientRepositoryPostgres(ClientRepository):
         self.db_session.commit()
         return client_schema.dump(new_client)
 
-    @handle_db_session(db_session)
     def get(self, client_id):
         client_schema = ClientSchema()
         client = self.db_session.query(Client).filter_by(id=client_id).first()
@@ -55,7 +54,8 @@ class ClientRepositoryPostgres(ClientRepository):
     def get_all(self, query: dict[str, str]):
         client_schema = ClientSchema(many=True)
         if not query:
-            return self.db_session.query(Client).all()
+            result = self.db_session.query(Client).all()
+            return client_schema.dump(result)
 
         filters = []
         if 'id_type' in query:

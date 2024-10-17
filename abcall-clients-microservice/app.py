@@ -10,8 +10,6 @@ from chalicelib.src.seedwork.application.queries import execute_query
 from chalicelib.src.modules.application.queries.get_clients import GetClientsQuery
 from chalicelib.src.modules.application.queries.get_client import GetClientQuery
 
-
-
 app = Chalice(app_name='abcall-clients-microservice')
 app.debug = True
 
@@ -38,7 +36,7 @@ def client_get(client_id):
 
     try:
         query_result = execute_query(GetClientQuery(client_id=client_id))
-        if not query_result.result:  # Verificar si se encontró un resultado
+        if not query_result.result:
             return {'status': 'fail', 'message': 'Client not found'}
 
         return {'status': 'success', 'data': query_result.result}, 200
@@ -46,6 +44,7 @@ def client_get(client_id):
     except Exception as e:
         LOGGER.error(f"Error fetching client: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while fetching the client'}, 500
+
 
 @app.route('/client/{client_id}', methods=['DELETE'])
 def client_delete(client_id):
@@ -62,7 +61,8 @@ def client_delete(client_id):
         LOGGER.error(f"Error fetching client: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while deleting the client'}, 400
 
-@app.route('/client/{client_id}', methods=['UPDATE'])
+
+@app.route('/client/{client_id}', methods=['PUT'])
 def client_update(client_id):
     if not client_id:
         return {'status': 'fail', 'message': 'Invalid client id'}, 400
@@ -99,8 +99,8 @@ def client_post():
         raise BadRequestError(f"Invalid 'document type for legal representative' value. Must be one of {valid_types}")
 
     valid_types = ['emprendedor', 'empresario', 'empresario_plus']
-    if client_as_json["client_type"] not in valid_types:
-        raise BadRequestError(f"Invalid 'plan type' value. Must be one of {valid_types}")
+    if client_as_json["plan_type"] not in valid_types:
+        raise BadRequestError(f"Invalid 'plan type' {client_as_json['id_rep_lega']}. Must be one of {valid_types}")
 
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
     if not re.match(email_regex, client_as_json["email_rep"]):
@@ -124,6 +124,7 @@ def client_post():
     execute_command(command)
 
     return {'status': "ok", 'message': "Client created successfully"}, 200
+
 
 @app.route('/migrate', methods=['POST'])
 def migrate():

@@ -17,8 +17,8 @@ class UpdateInformationHandler(CommandBaseHandler):
     def handle(self, command: DeleteClientCommand):
         LOGGER.info("Handle createClientCommand")
 
-        repository = self.incidence_factory.create_object(ClientRepository.__class__)
-        repository.remove(command.cognito_client_sub)
+        repository = self.client_factory.create_object(ClientRepository.__class__)
+        repository.remove(command.client_id)
 
 
 @execute_command.register(DeleteClientCommand)

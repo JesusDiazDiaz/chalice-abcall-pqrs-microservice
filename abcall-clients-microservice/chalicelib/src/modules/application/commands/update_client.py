@@ -18,7 +18,7 @@ class UpdateInformationHandler(CommandBaseHandler):
     def handle(self, command: UpdateClientCommand):
         LOGGER.info("Handle createClientCommand")
 
-        repository = self.incidence_factory.create_object(ClientRepository.__class__)
+        repository = self.client_factory.create_object(ClientRepository.__class__)
         repository.update(command.client_id, command.client_data)
 
 
