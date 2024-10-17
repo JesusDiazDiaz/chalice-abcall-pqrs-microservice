@@ -24,10 +24,12 @@ class CommunicationType(enum.Enum):
     PHONE = "Phone"
     SMS = "Sms"
     CHAT = "Chat"
+    
 class User(Base):
     __tablename__ = 'users'
 
-    cognito_user_sub = Column(UUID(as_uuid=True), primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    cognito_user_sub = Column(String, nullable=False)
     document_type = Column(Enum(DocumentType), nullable=False)
     user_role = Column(Enum(UserRole), nullable=False)
     client_id = Column(String, nullable=False)
