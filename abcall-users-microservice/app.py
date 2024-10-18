@@ -123,6 +123,10 @@ def user_post():
                 {
                     'Name': 'email_verified',
                     'Value': 'true'
+                },
+                {
+                    'Name': 'custom:user_role',
+                    'Value': user_as_json["user_role"]
                 }
             ],
             TemporaryPassword=user_as_json["password"],
