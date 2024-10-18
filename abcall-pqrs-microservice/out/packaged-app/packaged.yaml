@@ -15,12 +15,12 @@ Outputs:
   EndpointURL:
     Value:
       Fn::Sub: https://${RestAPI}.execute-api.${AWS::Region}.${AWS::URLSuffix}/api/
-  DBClusterEndpoint:
+  DBInstanceEndpoint:
     Value:
       Fn::GetAtt:
-      - AuroraServerlessCluster
+      - PostgresDBInstance
       - Endpoint.Address
-    Description: Endpoint for the Aurora Serverless Cluster
+    Description: Endpoint for the RDS PostgreSQL instance
 Resources:
   DefaultRole:
     Type: AWS::IAM::Role
@@ -98,6 +98,36 @@ Resources:
                 httpMethod: POST
                 contentHandling: CONVERT_TO_TEXT
                 type: aws_proxy
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                '200':
+                  description: 200 response
+                  schema:
+                    $ref: '#/definitions/Empty'
+                  headers:
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: '200'
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                      method.response.header.Access-Control-Allow-Headers: "'Authorization,Content-Type,X-Amz-Date,X-Amz-Security-Token,X-Api-Key'"
+                requestTemplates:
+                  application/json: '{"statusCode": 200}'
+                passthroughBehavior: when_no_match
+                type: mock
+                contentHandling: CONVERT_TO_TEXT
           /migrate:
             post:
               consumes:
@@ -145,12 +175,15 @@ Resources:
     Properties:
       Runtime: python3.12
       Handler: app.app
-      CodeUri: s3://infra-abc/6047642f1c7d123048dc66dc7b425905
+      CodeUri: s3://infra-abc/2f1aa2c11a71643e0dc45b20cf8ebc0e
       Tags:
         aws-chalice: version=1.31.2:stage=dev:app=abcall-pqrs-microservice
       Tracing: PassThrough
       Timeout: 60
       MemorySize: 128
+      Environment:
+        Variables:
+          DATABASE_URL: postgresql://bunny:password123@abcall-pqrs-service-database.cxsvh4nwbuit.us-east-1.rds.amazonaws.com:5432/postgres
       Role:
         Fn::GetAtt:
         - DefaultRole
@@ -167,28 +200,28 @@ Resources:
         - arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestAPIId}/*
         - RestAPIId:
             Ref: RestAPI
-  AuroraServerlessCluster:
-    Type: AWS::RDS::DBCluster
+  PostgresDBInstance:
+    Type: AWS::RDS::DBInstance
     Properties:
-      Engine: aurora-postgresql
-      EngineMode: serverless
+      DBInstanceIdentifier: abcall-pqrs-service-database
+      DBInstanceClass: db.t3.micro
+      Engine: postgres
       MasterUsername: bunny
       MasterUserPassword: password123
-      DBClusterIdentifier: pqrs-service-serverless
-      ScalingConfiguration:
-        AutoPause: true
-        MinCapacity: 2
-        MaxCapacity: 16
-        SecondsUntilAutoPause: 300
-      StorageEncrypted: true
-      VpcSecurityGroupIds:
+      DBName: postgres
+      AllocatedStorage: 20
+      StorageType: gp2
+      BackupRetentionPeriod: 7
+      MultiAZ: false
+      PubliclyAccessible: true
+      VPCSecurityGroups:
       - Ref: SecurityGroup
       DBSubnetGroupName:
         Ref: DBSubnetGroup
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Aurora Serverless security group
+      GroupDescription: PostgreSQL RDS security group
       VpcId: vpc-a29a48d8
       SecurityGroupIngress:
       - IpProtocol: tcp
@@ -198,7 +231,7 @@ Resources:
   DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
-      DBSubnetGroupDescription: Subnet group for Aurora Serverless
+      DBSubnetGroupDescription: Subnet group for RDS PostgreSQL
       SubnetIds:
       - subnet-2cf5734b
       - subnet-f312d8cd

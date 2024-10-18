@@ -5,10 +5,10 @@ from chalicelib.src.modules.application.commands.create_incident import CreateIn
 from chalicelib.src.seedwork.application.commands import execute_command
 
 app = Chalice(app_name='abcall-pqrs-events-microservice')
-# Enable DEBUG logs.
 app.log.setLevel(logging.DEBUG)
 
 LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
+
 
 @app.on_sns_message(topic='AbcallPqrsTopic')
 def handle_sns_message(event):
@@ -18,9 +18,10 @@ def handle_sns_message(event):
     incidence_as_json = json.loads(event.message)
 
     command = CreateIncidenceCommand(
-        incidence_type=incidence_as_json["incidence_type"],
-        status=incidence_as_json["status"],
-        risk_level=incidence_as_json["risk_level"],
+        title=incidence_as_json["title"],
+        type=incidence_as_json["type"],
+        description=incidence_as_json["description"],
+        date=incidence_as_json["date"],
     )
 
     execute_command(command)
