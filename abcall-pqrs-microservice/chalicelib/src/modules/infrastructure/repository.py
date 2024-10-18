@@ -11,13 +11,21 @@ class IncidenceRepositoryPostgres(IncidenceRepository):
     def __init__(self):
         self.db_session = init_db()
 
+    def _close_session(self):
+        self.db_session.close()
+
     def add(self, incidence):
         raise NotImplementedError
 
     def get(self, id):
-        incidence = self.db_session.query(Incidence).filter_by(id=id).first()
+        try:
+            incidence = self.db_session.query(Incidence).filter_by(id=id).first()
+        finally:
+            self._close_session()
+
         if not incidence:
             raise ValueError("Incidence not found")
+
         return incidence
 
     def remove(self, entity):
@@ -26,7 +34,11 @@ class IncidenceRepositoryPostgres(IncidenceRepository):
     def get_all(self):
         incident_schema = IncidenceSchema(many=True)
 
-        result = self.db_session.query(Incidence).all()
+        try:
+            result = self.db_session.query(Incidence).all()
+        finally:
+            self._close_session()
+
         return incident_schema.dump(result)
 
     def update(self, id, data) -> None:

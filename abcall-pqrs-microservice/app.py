@@ -22,13 +22,13 @@ authorizer = CognitoUserPoolAuthorizer(
 )
 
 
-@app.route('/pqrs', cors=True, authorizer=authorizer)
-def index():
+@app.route('/pqrs', cors=True)
+def incidences():
     query_result = execute_query(GetIncidentsQuery())
     return query_result.result
 
 
-@app.route('/pqrs', methods=['POST'], cors=True, authorizer=authorizer)
+@app.route('/pqrs', methods=['POST'], cors=True)
 def incidence_post():
     incidence_as_json = app.current_request.json_body
 

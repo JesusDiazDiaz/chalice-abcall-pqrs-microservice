@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+
 from chalicelib.src.modules.application.commands.base import CommandBaseHandler
 from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.seedwork.application.commands import Command
@@ -10,9 +11,10 @@ LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
 @dataclass
 class CreateIncidenceCommand(Command):
-    incidence_type: str
-    status: str
-    risk_level: str
+    type: str
+    title: str
+    description: str
+    date: str
 
 
 class CreateIncidenceHandler(CommandBaseHandler):
