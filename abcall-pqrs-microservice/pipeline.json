@@ -10,20 +10,27 @@
       "Default": "aws/codebuild/amazonlinux2-x86_64-standard:3.0",
       "Type": "String",
       "Description": "Name of codebuild image to use."
+    },
+    "GithubOwner": {
+      "Type": "String",
+      "Description": "The github owner or org name of the repository."
+    },
+    "GithubRepoName": {
+      "Type": "String",
+      "Description": "The name of the github repository."
+    },
+    "GithubRepoSecretId": {
+      "Type": "String",
+      "Default": "GithubRepoAccess",
+      "Description": "The name/ID of the SecretsManager secret that contains the personal access token for the github repo."
+    },
+    "GithubRepoSecretJSONKey": {
+      "Type": "String",
+      "Default": "OAuthToken",
+      "Description": "The name of the JSON key in the SecretsManager secret that contains the personal access token for the github repo."
     }
   },
   "Resources": {
-    "SourceRepository": {
-      "Type": "AWS::CodeCommit::Repository",
-      "Properties": {
-        "RepositoryName": {
-          "Ref": "ApplicationName"
-        },
-        "RepositoryDescription": {
-          "Fn::Sub": "Source code for ${ApplicationName}"
-        }
-      }
-    },
     "ApplicationBucket": {
       "Type": "AWS::S3::Bucket"
     },
@@ -112,8 +119,7 @@
           "Fn::GetAtt": "CodeBuildRole.Arn"
         },
         "Source": {
-          "Type": "CODEPIPELINE",
-          "BuildSpec": "artifacts:\n  files:\n  - transformed.yaml\n  type: zip\nphases:\n  build:\n    commands:\n    - chalice package /tmp/packaged\n    - aws cloudformation package --template-file /tmp/packaged/sam.json --s3-bucket\n      ${APP_S3_BUCKET} --output-template-file transformed.yaml\n  install:\n    commands:\n    - pip install 'chalice>=1.31.0,<1.32.0'\n    - pip install -r requirements.txt\n    runtime-versions:\n      python: '3.12'\nversion: '0.2'\n"
+          "Type": "CODEPIPELINE"
         }
       }
     },
@@ -137,25 +143,52 @@
             "Name": "Source",
             "Actions": [
               {
+                "Name": "Source",
                 "ActionTypeId": {
                   "Category": "Source",
-                  "Owner": "AWS",
-                  "Version": 1,
-                  "Provider": "CodeCommit"
+                  "Owner": "ThirdParty",
+                  "Version": "1",
+                  "Provider": "GitHub"
                 },
-                "Configuration": {
-                  "BranchName": "master",
-                  "RepositoryName": {
-                    "Fn::GetAtt": "SourceRepository.Name"
-                  }
-                },
+                "RunOrder": 1,
                 "OutputArtifacts": [
                   {
                     "Name": "SourceRepo"
                   }
                 ],
-                "RunOrder": 1,
-                "Name": "Source"
+                "Configuration": {
+                  "Owner": {
+                    "Ref": "GithubOwner"
+                  },
+                  "Repo": {
+                    "Ref": "GithubRepoName"
+                  },
+                  "OAuthToken": {
+                    "Fn::Join": [
+                      "",
+                      [
+                        "{{resolve:secretsmanager:",
+                        {
+                          "Ref": "GithubRepoSecretId"
+                        },
+                        ":SecretString:",
+                        {
+                          "Ref": "GithubRepoSecretJSONKey"
+                        },
+                        "}}"
+                      ]
+                    ]
+                  },
+                  "Branch": "main",
+                  "PollForSourceChanges": true,
+                  "FilterGroups": [
+                    [
+                      {
+                        "Pattern": "abcall-pqrs-microservice/*"
+                      }
+                    ]
+                  ]
+                }
               }
             ]
           },
@@ -396,11 +429,6 @@
     }
   },
   "Outputs": {
-    "SourceRepoURL": {
-      "Value": {
-        "Fn::GetAtt": "SourceRepository.CloneUrlHttp"
-      }
-    },
     "S3ApplicationBucket": {
       "Value": {
         "Ref": "ApplicationBucket"
