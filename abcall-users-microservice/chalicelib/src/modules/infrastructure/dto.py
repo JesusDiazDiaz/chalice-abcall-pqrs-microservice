@@ -19,6 +19,7 @@ class UserRole(enum.Enum):
     AGENT = "Agent"
     REGULAR = "Regular"
 
+#TODO: Change this to spanish
 class CommunicationType(enum.Enum):
     EMAIL = "Email"
     PHONE = "Phone"
