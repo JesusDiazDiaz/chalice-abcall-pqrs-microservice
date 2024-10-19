@@ -38,3 +38,5 @@ def init_db(migrate=False):
     else:
         LOGGER.error("DATABASE_URL is not set in environment variables.")
         raise ValueError("DATABASE_URL is not set in environment variables.")
+
+    return db_session

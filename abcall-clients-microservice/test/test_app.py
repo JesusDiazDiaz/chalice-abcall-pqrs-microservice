@@ -48,7 +48,8 @@ class TestClientService(unittest.TestCase):
         self.test_client = None
 
     @patch('app.cognito_client', autospec=True)
-    def test_get_clients(self, mock_cognito):
+    @patch('app.app.current_request')
+    def test_get_clients(self, mock_request, mock_cognito):
         mock_cognito.list_users.return_value = {
             'Users': [
                 {
@@ -61,7 +62,18 @@ class TestClientService(unittest.TestCase):
             ]
         }
 
-        headers = {'Authorization': self.access_token, 'Content-Type':'application/json'}
+        mock_request.context = {
+            'authorizer': {'sub': {
+                'Username': self.username,
+                'UserAttributes': [
+                    {'Name': 'email', 'Value': 'testuser@example.com'},
+                    {'Name': 'custom:user_role', 'Value': 'superadmin'}
+                ]
+            }
+            }
+        }
+
+        headers = {'Authorization': self.access_token, 'Content-Type': 'application/json'}
         response = self.test_client.http.get('/clients', headers=headers)
         self.assertEqual(response.status_code, 200)
         self.assertIn('testuser', response.json_body)
