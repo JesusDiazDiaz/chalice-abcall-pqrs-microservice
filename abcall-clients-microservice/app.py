@@ -173,3 +173,4 @@ def migrate():
         return {"message": "Tablas creadas con éxito"}
     except Exception as e:
         return {"error": str(e)}
+
