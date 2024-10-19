@@ -1,11 +1,9 @@
 artifacts:
   files:
   - transformed.yaml
-  type: zip
 phases:
   build:
     commands:
-    - cd abcall-pqrs-microservice
     - chalice package /tmp/packaged
     - aws cloudformation package --template-file /tmp/packaged/sam.json --s3-bucket
       ${APP_S3_BUCKET} --output-template-file transformed.yaml
@@ -14,5 +12,5 @@ phases:
     - pip install 'chalice>=1.31.0,<1.32.0'
     - pip install -r requirements.txt
     runtime-versions:
-      python: '3.12'
+      python: '3.9'
 version: '0.2'

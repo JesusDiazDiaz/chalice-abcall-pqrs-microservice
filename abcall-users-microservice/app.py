@@ -50,6 +50,8 @@ def user_get():
         LOGGER.error(f"Error fetching user: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while fetching the user'}, 500
 
+#TODO: Add /user/{user_sub} GET
+
 
 @app.route('/user/{user_sub}', methods=['DELETE'], authorizer=authorizer)
 def user_delete(user_sub):
@@ -125,7 +127,7 @@ def user_post():
                     'Value': 'true'
                 },
                 {
-                    'Name': 'custom:user_role',
+                    'Name': 'custom:userRole',
                     'Value': user_as_json["user_role"]
                 }
             ],
@@ -162,7 +164,7 @@ def user_post():
 
     return {'status': "ok", 'message': "User created successfully", 'cognito_user_sub': cognito_user_sub}, 200
 
-@app.route('/user/me', methods=['GET'], authorizer=app.authorizer())
+@app.route('/user/me', methods=['GET'], authorizer=authorizer)
 def get_current_user():
     request = app.current_request
     auth_header = request.headers.get('Authorization')

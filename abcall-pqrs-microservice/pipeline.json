@@ -180,14 +180,7 @@
                     ]
                   },
                   "Branch": "main",
-                  "PollForSourceChanges": true,
-                  "FilterGroups": [
-                    [
-                      {
-                        "Pattern": "abcall-pqrs-microservice/*"
-                      }
-                    ]
-                  ]
+                  "PollForSourceChanges": true
                 }
               }
             ]

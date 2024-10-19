@@ -36,7 +36,7 @@ class IncidenceRepositoryPostgres(IncidenceRepository):
                 status=Status.ABIERTO,
                 date=incidence_date,
                 estimated_close_date=estimated_close_date,
-                user_id='1',
+                user_sub=incidence.user_sub,
                 type=IncidentType.PETICION,
                 type_communication=CommunicationType.EMAIL
             )
