@@ -16,7 +16,7 @@ class ClientRepositoryPostgres(ClientRepository):
 
     def add(self, client):
         LOGGER.info(f"Repository add client: {client}")
-        client_schema = ClientSchema()
+        client_schema = ClientSchema(many=False)
         new_client = Client(
             perfil=client.perfil,
             id_type=DocumentType[client.id_type],

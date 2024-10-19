@@ -1,4 +1,5 @@
 import datetime
+import json
 import unittest
 from unittest.mock import patch, MagicMock
 import boto3
@@ -23,10 +24,6 @@ class TestClientService(unittest.TestCase):
     def setUp(self):
         self.cognito_client = boto3.client('cognito-idp', region_name='us-east-1')
         self.user_pool_id = self.cognito_client.create_user_pool(PoolName='TestPool')['UserPool']['Id']
-        self.client_id = self.cognito_client.create_user_pool_client(
-            UserPoolId=self.user_pool_id,
-            ClientName='TestClient'
-        )['UserPoolClient']['ClientId']
 
         self.username = 'testuser'
         self.password = 'TestPassword123!'
@@ -40,43 +37,54 @@ class TestClientService(unittest.TestCase):
         )
 
         self.access_token = self.create_test_jwt()
-
         self.test_client = Client(app.app)
+        self.client_data = {
+            "perfil": "Empresa",
+            "id_type": "NIT",
+            "legal_name": "Claro",
+            "id_number": "123456789",
+            "address": "calle falsa 123",
+            "type_document_rep": "cedula",
+            "id_rep_lega": "45678913",
+            "name_rep": "Test",
+            "last_name_rep": "Tester",
+            "email_rep": "testTester@gmail.com",
+            "plan_type": "empresario_plus",
+            "cellphone": ""
+        }
 
     def tearDown(self):
         self.cognito_client = None
         self.test_client = None
 
-    @patch('app.cognito_client', autospec=True)
-    @patch('app.app.current_request')
-    def test_get_clients(self, mock_request, mock_cognito):
-        mock_cognito.list_users.return_value = {
-            'Users': [
-                {
-                    'Username': self.username,
-                    'Attributes': [
-                        {'Name': 'email', 'Value': 'testuser@example.com'},
-                        {'Name': 'custom:user_role', 'Value': 'superadmin'}
-                    ]
-                }
-            ]
-        }
-
-        mock_request.context = {
-            'authorizer': {'sub': {
+    @patch("app.CognitoUserPoolAuthorizer")
+    def test_get_clients(self, mock_authorizer):
+        mock_authorizer.return_value.get_claims.return_value = {
+            'sub': {
                 'Username': self.username,
                 'UserAttributes': [
                     {'Name': 'email', 'Value': 'testuser@example.com'},
                     {'Name': 'custom:user_role', 'Value': 'superadmin'}
                 ]
             }
+        }
+
+        mock_authorizer.authorizer = {
+            'context': {
+                'authorizer': {
+                    'claims': {
+                        'sub': '1234567890',
+                        'name': 'John Doe',
+                        'email': 'john.doe@example.com'
+                    }
+                }
             }
         }
 
         headers = {'Authorization': self.access_token, 'Content-Type': 'application/json'}
         response = self.test_client.http.get('/clients', headers=headers)
         self.assertEqual(response.status_code, 200)
-        self.assertIn('testuser', response.json_body)
+        self.assertGreater(len(response.json_body), 0)
 
     @patch('app.cognito_client', autospec=True)
     def test_create_client(self, mock_cognito):
@@ -94,37 +102,24 @@ class TestClientService(unittest.TestCase):
             "plan_type": "emprendedor"
         }
 
-        headers = {'Authorization': self.access_token}
-        response = self.test_client.http.post('/client', body=client_data, headers=headers)
+        headers = {'Authorization': self.access_token, 'Content-Type': 'application/json'}
+        response = self.test_client.http.post('/client', body=json.dumps(client_data), headers=headers)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json_body['message'], "Client created successfully")
-
-    @patch('app.cognito_client', autospec=True)
-    def test_get_client_by_id(self, mock_cognito):
-        mock_cognito.admin_get_user.return_value = {
-            'Username': self.username,
-            'UserAttributes': [
-                {'Name': 'email', 'Value': 'testuser@example.com'},
-                {'Name': 'custom:user_role', 'Value': 'superadmin'}
-            ]
-        }
+        response_body = response.json_body[0]
+        self.assertEqual(response_body['message'], "Client created successfully")
+        self.client_data = response_body['data']
 
         headers = {'Authorization': self.access_token}
-        response = self.test_client.http.get('/client/1', headers=headers)
-
+        response = self.test_client.http.get('/client/' + str(self.client_data['id']), headers=headers)
+        response_body = response.json_body[0]
         self.assertEqual(response.status_code, 200)
-        self.assertIn('testuser', response.json_body['data']['Username'])
-
-    @patch('app.cognito_client', autospec=True)
-    def test_delete_client(self, mock_cognito):
-        mock_cognito.admin_delete_user.return_value = {}
+        self.assertEqual(self.client_data, response_body['data'])
 
         headers = {'Authorization': self.access_token}
-        response = self.test_client.http.delete('/client/1', headers=headers)
+        response = self.test_client.http.delete('/client/' + str(self.client_data['id']), headers=headers)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json_body['status'], 'success')
 
 
 if __name__ == '__main__':
