@@ -117,7 +117,12 @@
                   "httpMethod": "POST",
                   "contentHandling": "CONVERT_TO_TEXT",
                   "type": "aws_proxy"
-                }
+                },
+                "security": [
+                  {
+                    "AbcPool": []
+                  }
+                ]
               },
               "post": {
                 "consumes": [
@@ -251,7 +256,21 @@
             "video/ogg",
             "video/mpeg",
             "video/webm"
-          ]
+          ],
+          "securityDefinitions": {
+            "AbcPool": {
+              "in": "header",
+              "type": "apiKey",
+              "name": "Authorization",
+              "x-amazon-apigateway-authtype": "cognito_user_pools",
+              "x-amazon-apigateway-authorizer": {
+                "type": "cognito_user_pools",
+                "providerARNs": [
+                  "arn:aws:cognito-idp:us-east-1:044162189377:userpool/us-east-1_YDIpg1HiU"
+                ]
+              }
+            }
+          }
         }
       }
     },

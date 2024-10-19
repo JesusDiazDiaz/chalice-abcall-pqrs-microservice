@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from chalicelib.src.modules.domain.repository import IncidenceRepository
 from chalicelib.src.modules.infrastructure.dto import Incidence, IncidentType, Status, CommunicationType
 from chalicelib.src.config.db import db_session, init_db
+from chalicelib.src.modules.infrastructure.facades import MicroservicesFacade
 
 LOGGER = logging.getLogger('abcall-pqrs-events-microservice')
 
@@ -21,6 +22,11 @@ class IncidenceRepositoryPostgres(IncidenceRepository):
 
         incidence_date = datetime.fromtimestamp(incidence.date)
         estimated_close_date = incidence_date + timedelta(days=8)
+
+        LOGGER.info(f"Get user by sub {incidence.user_sub}")
+        # TODO: Add retrieve user
+        # facade = MicroservicesFacade()
+        # current_user = facade.get_user(incidence.user_sub)
 
         try:
             incidence = Incidence(

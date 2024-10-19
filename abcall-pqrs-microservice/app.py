@@ -4,7 +4,7 @@ from datetime import datetime
 
 from chalice import Chalice, BadRequestError, CognitoUserPoolAuthorizer
 from chalicelib.src.modules.application.commands.create_incident import CreateIncidentCommand
-from chalicelib.src.modules.infrastructure.dto import Base
+from chalicelib.src.modules.infrastructure.dto import Base, IncidentType
 from chalicelib.src.seedwork.application.commands import execute_command
 from chalicelib.src.config.db import init_db, engine
 from chalicelib.src.seedwork.application.queries import execute_query
@@ -22,13 +22,20 @@ authorizer = CognitoUserPoolAuthorizer(
 )
 
 
-@app.route('/pqrs', cors=True)
+@app.route('/pqrs', cors=True, authorizer=authorizer)
 def incidences():
+    user_claims = app.current_request.context['authorizer']['claims']
+    user_id = user_claims.get('sub')
+    email = user_claims.get('email')
+
+    user_role = user_claims.get('custom:custom:userRole', None)
+    LOGGER.info(f"User {email} get incidences, userId: {user_id} with role `{user_role}`")
+
     query_result = execute_query(GetIncidentsQuery())
     return query_result.result
 
 
-@app.route('/pqrs', methods=['POST'], cors=True)
+@app.route('/pqrs', methods=['POST'], cors=True, authorizer=authorizer)
 def incidence_post():
     incidence_as_json = app.current_request.json_body
 
@@ -38,15 +45,22 @@ def incidence_post():
         if field not in incidence_as_json:
             raise BadRequestError(f"Missing required field: {field}")
 
-    valid_types = ["petition", "claim"]
+    valid_types = [incident.value for incident in IncidentType]
     if incidence_as_json["type"] not in valid_types:
         raise BadRequestError(f"Invalid 'type' value. Must be one of {valid_types}")
+
+    user_claims = app.current_request.context['authorizer']['claims']
+    user_sub = user_claims.get('sub')
+    email = user_claims.get('email')
+
+    LOGGER.info(f"User {email} create incidence, userId: {user_sub}")
 
     command = CreateIncidentCommand(
         title=incidence_as_json["title"],
         type=incidence_as_json["type"],
         description=incidence_as_json["description"],
-        date=datetime.now()
+        date=datetime.now(),
+        user_sub=user_sub
     )
 
     execute_command(command)

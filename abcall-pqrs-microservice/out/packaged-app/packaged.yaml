@@ -78,6 +78,8 @@ Resources:
                 httpMethod: POST
                 contentHandling: CONVERT_TO_TEXT
                 type: aws_proxy
+              security:
+              - AbcPool: []
             post:
               consumes:
               - application/json
@@ -170,12 +172,22 @@ Resources:
         - video/ogg
         - video/mpeg
         - video/webm
+        securityDefinitions:
+          AbcPool:
+            in: header
+            type: apiKey
+            name: Authorization
+            x-amazon-apigateway-authtype: cognito_user_pools
+            x-amazon-apigateway-authorizer:
+              type: cognito_user_pools
+              providerARNs:
+              - arn:aws:cognito-idp:us-east-1:044162189377:userpool/us-east-1_YDIpg1HiU
   APIHandler:
     Type: AWS::Serverless::Function
     Properties:
       Runtime: python3.12
       Handler: app.app
-      CodeUri: s3://infra-abc/2f1aa2c11a71643e0dc45b20cf8ebc0e
+      CodeUri: s3://infra-abc/c9acd67698b7a0434afd5be3237a4f1c
       Tags:
         aws-chalice: version=1.31.2:stage=dev:app=abcall-pqrs-microservice
       Tracing: PassThrough

@@ -17,6 +17,7 @@ class CreateIncidentCommand(Command):
     title: str
     description: str
     date: datetime
+    user_sub: str
 
 
 class UpdateInformationHandler(CommandBaseHandler):
@@ -27,7 +28,8 @@ class UpdateInformationHandler(CommandBaseHandler):
             "type": command.type,
             "title": command.title,
             "description": command.description,
-            "date": command.date.timestamp()
+            "date": command.date.timestamp(),
+            "user_sub": command.user_sub
         }
         dispatcher.send(signal='CreateIncidentIntegration', event=json.dumps(event))
 
