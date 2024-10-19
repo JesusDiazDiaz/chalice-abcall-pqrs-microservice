@@ -14,7 +14,8 @@ class CreateIncidenceCommand(Command):
     type: str
     title: str
     description: str
-    date: str
+    date: int
+    user_sub: str
 
 
 class CreateIncidenceHandler(CommandBaseHandler):

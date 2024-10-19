@@ -1,3 +1,7 @@
+```bash
+aws cognito-idp admin-initiate-auth --user-pool-id us-east-1_YDIpg1HiU --client-id 65sbvtotc1hssqecgusj1p3f9g --auth-flow ADMIN_NO_SRP_AUTH --auth-parameters USERNAME=robert@mail.com,PASSWORD=Test@123 --query 'AuthenticationResult.IdToken' --output text
+```
+
 
 ```bash
 chalice package --merge-template extras.json out

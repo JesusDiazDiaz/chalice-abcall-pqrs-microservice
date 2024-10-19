@@ -22,6 +22,7 @@ def handle_sns_message(event):
         type=incidence_as_json["type"],
         description=incidence_as_json["description"],
         date=incidence_as_json["date"],
+        user_sub=incidence_as_json["user_sub"]
     )
 
     execute_command(command)

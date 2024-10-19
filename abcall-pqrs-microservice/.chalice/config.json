@@ -7,7 +7,7 @@
   "stages": {
    "prod": {
      "autogen_policy": false,
-     "iam_policy_file": "policy.json"
+     "iam_policy_file": "my-policy.json"
     }
   }
 }
