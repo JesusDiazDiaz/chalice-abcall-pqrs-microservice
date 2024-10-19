@@ -18,7 +18,7 @@ def init_db(migrate=False):
         if engine is None or db_session is None:
             LOGGER.info(f"Connecting to database at {os.getenv('DATABASE_URL')}")
             try:
-                engine = create_engine(os.getenv('DATABASE_URL'))
+                engine = create_engine(os.getenv('DATABASE_URL'), isolation_level="AUTOCOMMIT")
                 Session = sessionmaker(bind=engine)
                 db_session = Session()
                 LOGGER.info("Database connection established.")
