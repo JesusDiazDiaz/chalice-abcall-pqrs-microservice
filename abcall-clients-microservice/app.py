@@ -48,8 +48,8 @@ def check_superadmin_role(user_sub):
 def index():
     auth_info = app.current_request.context['authorizer']
     user_sub = auth_info['sub']
-
     check_superadmin_role(user_sub)
+
     query_result = execute_query(GetClientsQuery())
     return query_result.result
 
@@ -120,8 +120,8 @@ def client_post():
     auth_info = app.current_request.context['authorizer']
     user_sub = auth_info['sub']
     check_superadmin_role(user_sub)
-    client_as_json = app.current_request.json_body
 
+    client_as_json = app.current_request.json_body
     LOGGER.info("Receive create client request")
     required_fields = [
         "perfil", "id_type", "legal_name", "id_number", "address", "type_document_rep", "id_rep_lega", "name_rep",
@@ -161,9 +161,9 @@ def client_post():
         cellphone=client_as_json.get("cellphone", "")
     )
 
-    execute_command(command)
+    result = execute_command(command)
 
-    return {'status': "ok", 'message': "Client created successfully"}, 200
+    return {'status': "ok", 'message': "Client created successfully", "data": result}, 200
 
 
 @app.route('/migrate', methods=['POST'])
@@ -173,4 +173,3 @@ def migrate():
         return {"message": "Tablas creadas con éxito"}
     except Exception as e:
         return {"error": str(e)}
-

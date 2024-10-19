@@ -29,10 +29,10 @@ class UpdateInformationHandler(CommandBaseHandler):
         LOGGER.info("Handle createClientCommand")
 
         repository = self.client_factory.create_object(ClientRepository.__class__)
-        repository.add(command)
+        return repository.add(command)
 
 
 @execute_command.register(CreateClientCommand)
 def execute_update_information_command(command:  CreateClientCommand):
     handler = UpdateInformationHandler()
-    handler.handle(command)
+    return handler.handle(command)
