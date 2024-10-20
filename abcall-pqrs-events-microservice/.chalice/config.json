@@ -5,8 +5,7 @@
     "DATABASE_URL": "postgresql://bunny:password123@abcall-pqrs-service-database.cxsvh4nwbuit.us-east-1.rds.amazonaws.com:5432/postgres"
   },
   "stages": {
-    "dev": {
-      "api_gateway_stage": "api"
+    "prod": {
     }
   }
 }

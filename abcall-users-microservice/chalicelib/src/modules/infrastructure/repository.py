@@ -2,7 +2,7 @@ from operator import and_
 from uuid import UUID
 import logging
 from chalicelib.src.modules.domain.repository import UserRepository
-from chalicelib.src.modules.infrastructure.dto import User, DocumentType, UserRol, CommunicationType, UserSchema
+from chalicelib.src.modules.infrastructure.dto import User, DocumentType, UserRole, CommunicationType, UserSchema
 from chalicelib.src.config.db import db_session, init_db
 from chalicelib.src.seedwork.infrastructure.utils import handle_db_session
 
