@@ -30,15 +30,15 @@ class IncidenceRepositoryPostgres(IncidenceRepository):
 
         try:
             incidence = Incidence(
-                client_id='1',
+                client_id=incidence.client_id,
                 subject=incidence.title,
                 description=incidence.description,
                 status=Status.ABIERTO,
                 date=incidence_date,
                 estimated_close_date=estimated_close_date,
                 user_sub=incidence.user_sub,
-                type=IncidentType.PETICION,
-                type_communication=CommunicationType.EMAIL
+                type=IncidentType(IncidentType.PETICION),
+                communication_type=CommunicationType(incidence.communication_type)
             )
 
             self.db_session.add(incidence)
