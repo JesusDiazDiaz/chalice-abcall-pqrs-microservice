@@ -1,5 +1,5 @@
 import boto3, logging, re
-from chalice import Chalice, BadRequestError, CognitoUserPoolAuthorizer
+from chalice import Chalice, BadRequestError, CognitoUserPoolAuthorizer, ChaliceViewError
 from chalicelib.src.modules.application.commands.create_user import CreateUserCommand
 from chalicelib.src.modules.application.commands.update_user import UpdateUserCommand
 from chalicelib.src.modules.application.commands.delete_user import DeleteUserCommand
@@ -193,6 +193,23 @@ def get_current_user():
     except Exception as e:
         LOGGER.error(f"Error fetching current user: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while fetching the current user'}, 500
+
+@app.route('/user/me', methods=['PUT'], authorizer=authorizer)
+def update_me():
+    LOGGER.info("Update Me User")
+    user_info = app.current_request.context['authorizer']['claims']
+    user_sub = user_info['sub']
+    LOGGER.info(f"User Info: {user_info}")
+
+    command = UpdateUserCommand(cognito_user_sub=user_sub, user_data=app.current_request.json_body)
+
+    try:
+        execute_command(command)
+        return {'status': 'success'}
+
+    except Exception as e:
+        LOGGER.error(f"Error fetching user: {str(e)}")
+        raise ChaliceViewError('An error occurred while fetching the user')
 
 
 @app.route('/migrate', methods=['POST'])
