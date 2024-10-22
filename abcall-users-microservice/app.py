@@ -194,6 +194,7 @@ def get_current_user():
         LOGGER.error(f"Error fetching current user: {str(e)}")
         return {'status': 'fail', 'message': 'An error occurred while fetching the current user'}, 500
 
+
 @app.route('/user/me', methods=['PUT'], authorizer=authorizer)
 def update_me():
     LOGGER.info("Update Me User")
